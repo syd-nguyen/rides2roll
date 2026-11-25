@@ -30,3 +30,10 @@ class CarSubmissionRecord(BaseModel):
 class RiderSubmission(BaseModel):
     riderName: constr(min_length=3, max_length=30)
     riderPhone: conint(ge=1000000000, le=9999999999)
+
+class RiderSubmissionRecord(BaseModel):
+    riderName: constr(min_length=3, max_length=30)
+    riderPhone: conint(ge=1000000000, le=9999999999)
+    receivedAt: datetime
+    riderHash: str
+    riderId: constr(min_length=6, max_length=6)

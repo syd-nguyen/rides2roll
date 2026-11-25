@@ -138,7 +138,7 @@ def getCarsForEvent(eventId):
         return event['cars']
     else: return []
 
-@app.post('/api/send-rider-to-mongo/<eventId>/<driverId>') # this finds the car via the driver name AND the driver id
+@app.post('/api/send-rider-to-mongo/<eventId>/<driverId>') # this finds the car via the driver id
 def sendRiderToMongo(eventId, driverId):
 
     formData = request.get_json(silent=True)
@@ -151,6 +151,23 @@ def sendRiderToMongo(eventId, driverId):
     except ValidationError as ve:
         print("Error:", ve.errors())
         return jsonify({"error": "validation error", "detail": ve.errors()}), 422
+
+    received = datetime.now(timezone.utc)
+    validatedFormDataDict = validatedFormData.dict()
+
+    strToHash = validatedFormDataDict['riderName'] + str(validatedFormDataDict['riderPhone']) + str(received); # to do, change this to something that doesn't change, like the time of the event maybe idk
+    hashedStr = hash(strToHash)
+
+    # add additional information for record keeping
+    riderRecord = RiderSubmissionRecord(
+        **validatedFormData.dict(),
+        receivedAt = received,
+        riderHash = hashedStr,
+        riderId = hashedStr[:6] # id is first six characters of hash
+    )
+
+    riderRecordDict = riderRecord.dict()
+
     
     # this is kind of a goofy way to update the embedded documents but it works so yea :)
 
@@ -160,7 +177,7 @@ def sendRiderToMongo(eventId, driverId):
         if car['driverId'] == driverId:
 
             ridersToUpdate = car['riders'] # this is an array of documents
-            ridersToUpdate.append(validatedFormData.dict())
+            ridersToUpdate.append(riderRecordDict)
             car.update({'riders' : ridersToUpdate})
 
             takenSeatsToUpdate = car['takenSeats']
