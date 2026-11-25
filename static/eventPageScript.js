@@ -145,7 +145,7 @@ fetch(rootUrl + "/api/get-cars-for-event/" + currEventId)
                 newRiderText.innerText = thisRider.riderName + " " + makePhonePretty(thisRider.riderPhone);
                 newRiderDiv.appendChild(newRiderText);               
 
-                addClickListenerForRemoveButton(newRiderButton, thisCar.driverName, thisRider.riderName);
+                addClickListenerForRemoveButton(newRiderButton, thisCar.driverId, thisRider.riderName);
 
                 newRiderLeftDiv.appendChild(newRiderDiv);
             }
@@ -168,11 +168,11 @@ fetch(rootUrl + "/api/get-cars-for-event/" + currEventId)
 
 }
 
-function addClickListenerForRemoveButton(button, driverName, riderName) {
+function addClickListenerForRemoveButton(button, driverId, riderName) {
     button.addEventListener("click", async (e) => {
         try {
             const endpoint =
-                rootUrl + "/api/remove-rider-from-mongo/" + currEventId + "/" + driverName + "/" + riderName;
+                rootUrl + "/api/remove-rider-from-mongo/" + currEventId + "/" + driverId + "/" + riderName;
             const res = await fetch(endpoint, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
