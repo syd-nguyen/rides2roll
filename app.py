@@ -200,8 +200,8 @@ def removeCarFromMongo(eventId, driverId):
 
     return jsonify({"status": "ok"}), 200
 
-@app.post('/api/remove-rider-from-mongo/<eventId>/<driverId>/<riderName>')
-def removeRiderFromMongo(eventId, driverId, riderName):
+@app.post('/api/remove-rider-from-mongo/<eventId>/<driverId>/<riderId>')
+def removeRiderFromMongo(eventId, driverId, riderId):
 
     carsToUpdate = getEventCars(eventId)
 
@@ -211,7 +211,7 @@ def removeRiderFromMongo(eventId, driverId, riderName):
             ridersToUpdate = car['riders']
 
             for rider in ridersToUpdate:
-                if rider['riderName'] == riderName:
+                if rider['riderId'] == riderId:
 
                     ridersToUpdate.remove(rider)
 
