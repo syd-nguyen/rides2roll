@@ -43,14 +43,14 @@ addCarForm.addEventListener("submit", async (e) => {
 addRiderForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const riderName = riderNameField.value.trim();
-    const driverName = carsDropdownField.value;
+    const driverId = carsDropdownField.value;
     const riderPhone = riderPhoneField.value;
     if (!riderName) return;
-    if (!driverName) return;
+    if (!driverId) return;
     if (!riderPhone) return;
 
     try {
-        const endpoint = rootUrl + "/api/send-rider-to-mongo/" + currEventId + "/" + driverName;
+        const endpoint = rootUrl + "/api/send-rider-to-mongo/" + currEventId + "/" + driverId;
         const res = await fetch(endpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -95,7 +95,7 @@ fetch(rootUrl + "/api/get-cars-for-event/" + currEventId)
 
                 try {
                     const endpoint =
-                        rootUrl + "/api/remove-car-from-mongo/" + currEventId + "/" + thisCar.driverName + "/" + thisCar.driverId;
+                        rootUrl + "/api/remove-car-from-mongo/" + currEventId + "/" + thisCar.driverId;
                     const res = await fetch(endpoint, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -157,8 +157,8 @@ fetch(rootUrl + "/api/get-cars-for-event/" + currEventId)
             // add cars to dropdown list for riders IF they have open seats
             if (thisCar.takenSeats < thisCar.numberSeats) {
                 let newOption = document.createElement("option");
-                newOption.text = newOption.value = cars[i].driverName; // the dropdown shows the driver name
-                newOption.id = cars[i].driverId; // the id of the object stores the driverId to search for
+                newOption.text = cars[i].driverName;
+                newOption.value = cars[i].driverId; // the dropdown shows the driver name
                 carsDropdownField.add(newOption);
             }
         }

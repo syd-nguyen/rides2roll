@@ -138,8 +138,8 @@ def getCarsForEvent(eventId):
         return event['cars']
     else: return []
 
-@app.post('/api/send-rider-to-mongo/<eventId>/<driverName>') # this finds the car via the driver name but it could be changed to be by an id
-def sendRiderToMongo(eventId, driverName):
+@app.post('/api/send-rider-to-mongo/<eventId>/<driverId>') # this finds the car via the driver name AND the driver id
+def sendRiderToMongo(eventId, driverId):
 
     formData = request.get_json(silent=True)
     if formData is None:
@@ -154,10 +154,10 @@ def sendRiderToMongo(eventId, driverName):
     
     # this is kind of a goofy way to update the embedded documents but it works so yea :)
 
-    carsToUpdate = getEventCars(eventId, driverName) # this is an array of documents (which is also embedded within an event document)
+    carsToUpdate = getEventCars(eventId) # this is an array of documents (which is also embedded within an event document)
 
     for car in carsToUpdate: # each car is a document with an array of rider documents
-        if car['driverName'] == driverName:
+        if car['driverId'] == driverId:
 
             ridersToUpdate = car['riders'] # this is an array of documents
             ridersToUpdate.append(validatedFormData.dict())
@@ -171,12 +171,12 @@ def sendRiderToMongo(eventId, driverName):
 
     return jsonify({"status": "ok"}), 200
 
-@app.post('/api/remove-car-from-mongo/<eventId>/<driverName>/<driverId>')
-def removeCarFromMongo(eventId, driverName, driverId):
+@app.post('/api/remove-car-from-mongo/<eventId>/<driverId>')
+def removeCarFromMongo(eventId, driverId):
     carsToUpdate = getEventCars(eventId) # this is an array of documents / dictionaries (which is also embedded within an event document)
 
     for car in carsToUpdate: # each car is a document with an array of rider documents
-        if car['driverName'] == driverName and car['driverId'] == driverId:
+        if car['driverId'] == driverId:
             carsToUpdate.remove(car)
     
     events.update_one( { "eventId": eventId }, { "$set" : { "cars": carsToUpdate }})
