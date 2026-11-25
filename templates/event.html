@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="../static/style.css" />
+        <script src="../static/eventPageScript.js" defer></script>
+        <title>{{ eventName }} rideboard</title>
+    </head>
+    <body>
+        <h1 id="eventHeader">{{ eventName }} rideboard</h1>
+        <h2>{{ eventTime }} on {{ eventDate }} @ {{ eventLocation }}</h2>
+        <p id="eventDesc">{{ eventDesc }}</p>
+        <button id="copyLinkButton">copy link</button>
+        
+        <form id="addCarForm">
+            <input id="driverNameField" type="text" placeholder="driver name" autocomplete="on" required />
+            <input id="numberSeatsField" type="number" placeholder="available seats" autocomplete="on" required />
+            <button type="submit">Add Car</button>
+        </form>
+
+        <form id="addRiderForm">
+            <input id="riderNameField" type="text" placeholder="rider name" autocomplete="on" required />
+            <input id="riderPhoneField" type="tel" placeholder="phone number" autocomplete="on" required />
+            <select id="carsDropdownField" required> </select>
+            <button type="submit">Add Rider</button>
+        </form>
+
+    </body>
+</html>
