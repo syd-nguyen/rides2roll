@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
-from helpers import hash
+from hashlib import sha256
 from storage import append_json_line
 from pymongo import MongoClient
 from pydantic import ValidationError
@@ -94,4 +94,128 @@ def getEventPage(eventId):
         return render_template('event.html', eventName = event['eventName'], eventDesc = event['eventDesc'], eventLocation = event['eventLocation'], eventDate = eventDate, eventTime = eventTime)
     
     return render_template('eventDNE.html', eventId = eventId)
+
+   
+@app.post('/api/send-car-to-mongo/<eventId>')
+def sendCarToMongo(eventId):
+
+    formData = request.get_json(silent=True)
+    if formData is None:
+        return
     
+    # validate form data and throw error if applicable
+    try:
+        validatedFormData = CarSubmission(**formData)
+    except ValidationError as ve:
+        print("Error:", ve.errors())
+        return jsonify({"error": "validation error", "detail": ve.errors()}), 422
+    
+    carDict = validatedFormData.dict()
+    carDict.update({'riders': []})
+
+    # get corresponding event from Mongo using eventId and insert car into that event
+    events.update_one( { "eventId": eventId }, { "$push": { "cars": carDict } })
+
+    return jsonify({"status": "ok"}), 200
+
+@app.get('/api/get-cars-for-event/<eventId>')
+def getCarsForEvent(eventId):
+    event = getEvent(eventId)
+    if event is not None:
+        return event['cars']
+    else: return []
+
+@app.post('/api/send-rider-to-mongo/<eventId>/<driverName>') # this finds the car via the driver name but it could be changed to be by an id
+def sendRiderToMongo(eventId, driverName):
+
+    formData = request.get_json(silent=True)
+    if formData is None:
+        return
+    
+    # validate form data and throw error if applicable
+    try:
+        validatedFormData = RiderSubmission(**formData)
+    except ValidationError as ve:
+        print("Error:", ve.errors())
+        return jsonify({"error": "validation error", "detail": ve.errors()}), 422
+    
+    # this is kind of a goofy way to update the embedded documents but it works so yea :)
+
+    carsToUpdate = getEventCars(eventId, driverName) # this is an array of documents (which is also embedded within an event document)
+
+    for car in carsToUpdate: # each car is a document with an array of rider documents
+        if car['driverName'] == driverName:
+
+            ridersToUpdate = car['riders'] # this is an array of documents
+            ridersToUpdate.append(validatedFormData.dict())
+            car.update({'riders' : ridersToUpdate})
+
+            takenSeatsToUpdate = car['takenSeats']
+            takenSeatsToUpdate = takenSeatsToUpdate + 1
+            car.update({'takenSeats': takenSeatsToUpdate})
+    
+    events.update_one( { "eventId": eventId }, { "$set" : { "cars": carsToUpdate }})
+
+    return jsonify({"status": "ok"}), 200
+
+@app.post('/api/remove-car-from-mongo/<eventId>/<driverName>')
+def removeCarFromMongo(eventId, driverName):
+    carsToUpdate = getEventCars(eventId, driverName) # this is an array of documents / dictionaries (which is also embedded within an event document)
+
+    for car in carsToUpdate: # each car is a document with an array of rider documents
+        if car['driverName'] == driverName:
+            carsToUpdate.remove(car)
+    
+    events.update_one( { "eventId": eventId }, { "$set" : { "cars": carsToUpdate }})
+
+    return jsonify({"status": "ok"}), 200
+
+@app.post('/api/remove-rider-from-mongo/<eventId>/<driverName>/<riderName>')
+def removeRiderFromMongo(eventId, driverName, riderName):
+
+    carsToUpdate = getEventCars(eventId, driverName)
+
+    for car in carsToUpdate:
+        if car['driverName'] == driverName:
+            
+            ridersToUpdate = car['riders']
+
+            for rider in ridersToUpdate:
+                if rider['riderName'] == riderName:
+
+                    ridersToUpdate.remove(rider)
+
+                    takenSeatsToUpdate = car['takenSeats']
+                    takenSeatsToUpdate = takenSeatsToUpdate - 1
+                    car.update({'takenSeats': takenSeatsToUpdate})
+
+            car.update({'riders' : ridersToUpdate})
+    
+    events.update_one( { "eventId": eventId }, { "$set" : { "cars": carsToUpdate }})
+
+    return jsonify({"status": "ok"}), 200
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def hash(str):
+    return sha256(str.encode('utf-8')).hexdigest()
+
+def getEvent(eventId):
+    return events.find_one({'eventId' : eventId})
+
+def getEventCars(eventId, driverName):
+    return getEvent(eventId)['cars']
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port="8080", debug=True)
