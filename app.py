@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify
 from hashlib import sha256
 from storage import append_json_line
 from pymongo import MongoClient
@@ -94,7 +94,6 @@ def getEventPage(eventId):
         return render_template('event.html', eventName = event['eventName'], eventDesc = event['eventDesc'], eventLocation = event['eventLocation'], eventDate = eventDate, eventTime = eventTime)
     
     return render_template('eventDNE.html', eventId = eventId)
-
    
 @app.post('/api/send-car-to-mongo/<eventId>')
 def sendCarToMongo(eventId):
