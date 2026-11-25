@@ -3,7 +3,7 @@ from hashlib import sha256
 from storage import append_json_line
 from pymongo import MongoClient
 from pydantic import ValidationError
-from models import EventSubmission, EventSubmissionRecord, CarSubmission, RiderSubmission
+from models import *
 from datetime import datetime, timezone
 import os
 from dotenv import load_dotenv
@@ -109,8 +109,21 @@ def sendCarToMongo(eventId):
     except ValidationError as ve:
         print("Error:", ve.errors())
         return jsonify({"error": "validation error", "detail": ve.errors()}), 422
-    
-    carDict = validatedFormData.dict()
+
+    received = datetime.now(timezone.utc)
+    validatedFormDataDict = validatedFormData.dict()
+
+    strToHash = validatedFormDataDict['driverName'] + str(validatedFormDataDict['numberSeats']) + str(received);
+    hashedStr = hash(strToHash)
+
+    carRecord = CarSubmissionRecord(
+        **validatedFormData.dict(),
+        receivedAt = received,
+        driverHash = hashedStr,
+        driverId = hashedStr[:6] # id is first six characters of hash
+    )
+
+    carDict = carRecord.dict()
     carDict.update({'riders': []})
 
     # get corresponding event from Mongo using eventId and insert car into that event

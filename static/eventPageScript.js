@@ -157,7 +157,8 @@ fetch(rootUrl + "/api/get-cars-for-event/" + currEventId)
             // add cars to dropdown list for riders IF they have open seats
             if (thisCar.takenSeats < thisCar.numberSeats) {
                 let newOption = document.createElement("option");
-                newOption.text = newOption.value = cars[i].driverName;
+                newOption.text = newOption.value = cars[i].driverName; // the dropdown shows the driver name
+                newOption.id = cars[i].driverId; // the id of the object stores the driverId to search for
                 carsDropdownField.add(newOption);
             }
         }

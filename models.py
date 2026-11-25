@@ -19,6 +19,14 @@ class CarSubmission(BaseModel):
     numberSeats: conint(gt=0, le=15)
     takenSeats: int
 
+class CarSubmissionRecord(BaseModel):
+    driverName: constr(min_length=3, max_length=30)
+    numberSeats: conint(gt=0, le=15)
+    takenSeats: int
+    receivedAt: datetime
+    driverHash: str
+    driverId: constr(min_length=6, max_length=6)
+
 class RiderSubmission(BaseModel):
     riderName: constr(min_length=3, max_length=30)
     riderPhone: conint(ge=1000000000, le=9999999999)
