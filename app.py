@@ -171,12 +171,12 @@ def sendRiderToMongo(eventId, driverName):
 
     return jsonify({"status": "ok"}), 200
 
-@app.post('/api/remove-car-from-mongo/<eventId>/<driverName>')
-def removeCarFromMongo(eventId, driverName):
-    carsToUpdate = getEventCars(eventId, driverName) # this is an array of documents / dictionaries (which is also embedded within an event document)
+@app.post('/api/remove-car-from-mongo/<eventId>/<driverName>/<driverId>')
+def removeCarFromMongo(eventId, driverName, driverId):
+    carsToUpdate = getEventCars(eventId) # this is an array of documents / dictionaries (which is also embedded within an event document)
 
     for car in carsToUpdate: # each car is a document with an array of rider documents
-        if car['driverName'] == driverName:
+        if car['driverName'] == driverName and car['driverId'] == driverId:
             carsToUpdate.remove(car)
     
     events.update_one( { "eventId": eventId }, { "$set" : { "cars": carsToUpdate }})
@@ -227,7 +227,7 @@ def hash(str):
 def getEvent(eventId):
     return events.find_one({'eventId' : eventId})
 
-def getEventCars(eventId, driverName):
+def getEventCars(eventId):
     return getEvent(eventId)['cars']
 
 if __name__ == "__main__":

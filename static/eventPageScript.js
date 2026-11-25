@@ -95,7 +95,7 @@ fetch(rootUrl + "/api/get-cars-for-event/" + currEventId)
 
                 try {
                     const endpoint =
-                        rootUrl + "/api/remove-car-from-mongo/" + currEventId + "/" + thisCar.driverName;
+                        rootUrl + "/api/remove-car-from-mongo/" + currEventId + "/" + thisCar.driverName + "/" + thisCar.driverId;
                     const res = await fetch(endpoint, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
