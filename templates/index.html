@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="../static/style.css" />
+        <script src="../static/script.js" defer></script>
+        <title>rides 2 roll :]</title>
+    </head>
+    <body>
+        <div id="dimmer"></div>
+
+        <div class="centerPage">
+            <h1>rides 2 <span style="font-style: italic">roll</span></h1>
+            <button id="newBoardButton">create new rideboard</button>
+
+            <div id="newBoardWindow" class="">
+                <form id="newBoardForm">
+                    <input
+                        id="eventNameField"
+                        class="eventInput"
+                        type="text"
+                        placeholder="name of event"
+                        autocomplete="on"
+                        required /><br />
+                    <input
+                        id="eventDescField"
+                        class="eventInput"
+                        type="text"
+                        placeholder="description"
+                        autocomplete="on"
+                        /><br />
+                    <input
+                        id="eventLocationField"
+                        class="eventInput"
+                        type="text"
+                        placeholder="location"
+                        autocomplete="on"
+                        required /><br />
+                    <input
+                        id="eventDatetimeField"
+                        class="eventInput"
+                        type="datetime-local"
+                        placeholder="date and time"
+                        autocomplete="on"
+                        required /><br />
+                    <button type="submit">make board</button>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
